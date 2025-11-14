@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Healthcare Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        .sidebar-transition {
+            transition: all 0.3s ease;
+        }
+        .card-hover {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <!-- Sidebar -->
+    <div class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg sidebar-transition">
+        <!-- Logo Section -->
+        <div class="flex items-center justify-center h-16 px-4 bg-blue-600">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
+                    <i class="fas fa-hospital text-blue-600 text-lg"></i>
+                </div>
+                <span class="text-white font-bold text-xl">MediCare</span>
+            </div>
+        </div>
+        
+        <!-- Navigation -->
+        <nav class="mt-8 px-4">
+            <div class="space-y-2">
+                <a href="#" class="flex items-center px-4 py-3 text-gray-700 bg-blue-50 rounded-lg border-l-4 border-blue-600">
+                    <i class="fas fa-chart-bar mr-3 text-blue-600"></i>
+                    <span class="font-medium">Dashboard</span>
+                </a>
+                <a href="#" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg">
+                    <i class="fas fa-user-injured mr-3"></i>
+                    <span>Patients</span>
+                </a>
+                <a href="#" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg">
+                    <i class="fas fa-bed mr-3"></i>
+                    <span>IPD</span>
+                </a>
+                <a href="#" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg">
+                    <i class="fas fa-stethoscope mr-3"></i>
+                    <span>OPD</span>
+                </a>
+                <a href="#" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg">
+                    <i class="fas fa-file-invoice-dollar mr-3"></i>
+                    <span>Billing</span>
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="ml-64 min-h-screen">
+        <!-- Top Header -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>
+                    <p class="text-gray-600 text-sm">Welcome back to your healthcare dashboard</p>
+                </div>
+                
+                <!-- User Profile -->
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-user text-blue-600"></i>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm font-medium text-gray-900">Dr. John Smith</p>
+                            <p class="text-xs text-gray-500">Administrator</p>
+                        </div>
+                    </div>
+                    <button class="flex items-center space-x-2 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span class="text-sm">Logout</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <main class="p-6">
+            <!-- Date Range Filter -->
+            <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <label class="text-sm font-medium text-gray-700">From Date:</label>
+                        <input type="date" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" value="2024-01-01">
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <label class="text-sm font-medium text-gray-700">To Date:</label>
+                        <input type="date" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" value="2024-12-31">
+                    </div>
+                    <button class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-search mr-2"></i>Filter
+                    </button>
+                </div>
+            </div>
+
+            <!-- Main Metrics -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <!-- Total OPD Count -->
+                <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-lg shadow-lg p-6 text-white card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-green-100 text-sm font-medium">Total OPD Count</p>
+                            <p class="text-3xl font-bold mt-2">555</p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-400 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-stethoscope text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Total IPD Count -->
+                <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg shadow-lg p-6 text-white card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-blue-100 text-sm font-medium">Total IPD Count</p>
+                            <p class="text-3xl font-bold mt-2">400</p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-400 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-bed text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Transfer Count -->
+                <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg shadow-lg p-6 text-white card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-purple-100 text-sm font-medium">Transfer Count</p>
+                            <p class="text-3xl font-bold mt-2">200</p>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-400 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-exchange-alt text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Metrics -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- IPD Details -->
+                <div class="bg-white rounded-lg shadow-sm p-6 card-hover">
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-bed text-blue-600"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900">IPD Details</h3>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <span class="text-gray-700 font-medium">Total Admissions</span>
+                            <span class="text-2xl font-bold text-blue-600">50</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <span class="text-gray-700 font-medium">Current Patients</span>
+                            <span class="text-2xl font-bold text-orange-600">20</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <span class="text-gray-700 font-medium">Total Discharges</span>
+                            <span class="text-2xl font-bold text-green-600">10</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- OPD Billing -->
+                <div class="bg-white rounded-lg shadow-sm p-6 card-hover">
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-file-invoice text-green-600"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900">OPD Billing</h3>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <span class="text-gray-700 font-medium">Total Bills</span>
+                            <span class="text-2xl font-bold text-blue-600">50</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <span class="text-gray-700 font-medium">Pending Bills</span>
+                            <span class="text-2xl font-bold text-orange-600">20</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <span class="text-gray-700 font-medium">Paid Bills</span>
+                            <span class="text-2xl font-bold text-green-600">10</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- IPD Billing -->
+                <div class="bg-white rounded-lg shadow-sm p-6 card-hover">
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-file-invoice-dollar text-purple-600"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900">IPD Billing</h3>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <span class="text-gray-700 font-medium">Total Bills</span>
+                            <span class="text-2xl font-bold text-blue-600">50</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <span class="text-gray-700 font-medium">Pending Bills</span>
+                            <span class="text-2xl font-bold text-orange-600">20</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <span class="text-gray-700 font-medium">Paid Bills</span>
+                            <span class="text-2xl font-bold text-green-600">10</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Add interactive functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Date picker functionality
+            const fromDate = document.querySelector('input[type="date"]:first-of-type');
+            const toDate = document.querySelector('input[type="date"]:last-of-type');
+            const filterButton = document.querySelector('button:has(.fa-search)');
+            
+            filterButton.addEventListener('click', function() {
+                if (fromDate.value && toDate.value) {
+                    if (new Date(fromDate.value) > new Date(toDate.value)) {
+                        alert('From date cannot be later than To date');
+                        return;
+                    }
+                    // Simulate data refresh
+                    const cards = document.querySelectorAll('.card-hover');
+                    cards.forEach(card => {
+                        card.style.opacity = '0.7';
+                        setTimeout(() => {
+                            card.style.opacity = '1';
+                        }, 500);
+                    });
+                    
+                    // Show success message
+                    const message = document.createElement('div');
+                    message.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+                    message.textContent = 'Dashboard updated successfully!';
+                    document.body.appendChild(message);
+                    
+                    setTimeout(() => {
+                        message.remove();
+                    }, 3000);
+                } else {
+                    alert('Please select both From and To dates');
+                }
+            });
+            
+            // Logout functionality
+            const logoutButton = document.querySelector('button:has(.fa-sign-out-alt)');
+            logoutButton.addEventListener('click', function() {
+                if (confirm('Are you sure you want to logout?')) {
+                    alert('Logout successful! Redirecting to login page...');
+                }
+            });
+            
+            // Navigation hover effects
+            const navLinks = document.querySelectorAll('nav a');
+            navLinks.forEach(link => {
+                link.addEventListener('mouseenter', function() {
+                    if (!this.classList.contains('bg-blue-50')) {
+                        this.style.transform = 'translateX(4px)';
+                    }
+                });
+                
+                link.addEventListener('mouseleave', function() {
+                    if (!this.classList.contains('bg-blue-50')) {
+                        this.style.transform = 'translateX(0)';
+                    }
+                });
+            });
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9893e9afc2623fba',t:'MTc1OTU3Mjg3Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

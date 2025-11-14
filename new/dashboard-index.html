@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>MediCare — Icons-only collapsible sidebar + page scrollbar</title>
+
+    <!-- Bootstrap + Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="dashboard-index.css">
+</head>
+
+<body>
+    <!-- SIDEBAR -->
+    <aside id="appSidebar" class="sidebar" aria-expanded="true">
+        <div class="brand">
+            <div class="logo"><i class="fas fa-hospital"></i></div>
+            <div>
+                <div class="title">MediCare Admin</div>
+                <small style="opacity:.9">Dashboard</small>
+            </div>
+        </div>
+
+        <div class="nav-area" id="navArea" tabindex="0">
+            <ul class="nav-list" id="mainNav">
+                <!-- top-level -->
+                <li class="nav-item">
+                    <button class="nav-btn active" data-action="nav" data-target="dashboard" aria-expanded="false">
+                        <span class="icon"><i class="fas fa-tachometer-alt"></i></span>
+                        <span class="text">Dashboard</span>
+                        <span class="chev"><i class="fas fa-chevron-down"></i></span>
+                    </button>
+                </li>
+
+                <li class="nav-item">
+                    <button class="nav-btn" data-toggle="submenu" data-target="submenuPatients" aria-expanded="false">
+                        <span class="icon"><i class="fas fa-user-injured"></i></span>
+                        <span class="text">Patient Management</span>
+                        <span class="chev"><i class="fas fa-chevron-down"></i></span>
+                    </button>
+
+                    <ul id="submenuPatients" class="submenu" aria-hidden="true">
+                        <li><button class="nav-btn" data-action="nav" data-target="ipd"><span class="icon"><i
+                                        class="fas fa-procedures"></i></span><span class="text">IPD
+                                    Registration</span></button></li>
+
+                        <li>
+                            <button class="nav-btn" data-toggle="subsubmenu" data-target="subsubOpd"
+                                aria-expanded="false">
+                                <span class="icon"><i class="fas fa-user-md"></i></span><span
+                                    class="text">OPD</span><span class="chev"><i class="fas fa-chevron-down"></i></span>
+                            </button>
+
+                            <ul id="subsubOpd" class="subsubmenu" aria-hidden="true">
+                                <li><button class="nav-btn" data-action="nav" data-target="opdVisit"><span
+                                            class="icon"><i class="fas fa-notes-medical"></i></span><span
+                                            class="text">OPD Visit</span></button></li>
+                                <li><button class="nav-btn" data-action="nav" data-target="opdList"><span
+                                            class="icon"><i class="fas fa-list"></i></span><span class="text">OPD
+                                            List</span></button></li>
+                            </ul>
+                        </li>
+
+                        <li><button class="nav-btn" data-action="nav" data-target="patientList"><span class="icon"><i
+                                        class="fas fa-users"></i></span><span class="text">Patients List</span></button>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="nav-item">
+                    <button class="nav-btn" data-toggle="submenu" data-target="submenuBilling" aria-expanded="false">
+                        <span class="icon"><i class="fas fa-file-invoice-dollar"></i></span><span class="text">Billing &
+                            Finance</span><span class="chev"><i class="fas fa-chevron-down"></i></span>
+                    </button>
+                    <ul id="submenuBilling" class="submenu" aria-hidden="true">
+                        <li><button class="nav-btn" data-action="nav" data-target="ipdBilling"><span class="icon"><i
+                                        class="fas fa-hospital-user"></i></span><span class="text">IPD
+                                    Billing</span></button></li>
+                        <li><button class="nav-btn" data-action="nav" data-target="opdBilling"><span class="icon"><i
+                                        class="fas fa-receipt"></i></span><span class="text">OPD Billing</span></button>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="nav-item">
+                    <button class="nav-btn" data-action="nav" data-target="reports"><span class="icon"><i
+                                class="fas fa-chart-bar"></i></span><span class="text">Reports</span></button>
+                </li>
+
+                <li class="nav-item">
+                    <button class="nav-btn" data-action="nav" data-target="settings"><span class="icon"><i
+                                class="fas fa-cog"></i></span><span class="text">Settings</span></button>
+                </li>
+            </ul>
+        </div>
+
+        <div class="footer">
+            <div style="display:flex;gap:10px;align-items:center">
+                <div
+                    style="width:44px;height:44px;border-radius:8px;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div>
+                    <div style="font-weight:700">Dr. Sarah Wilson</div>
+                    <small style="opacity:.9">Administrator</small>
+                </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px;align-items:center">
+                <!-- collapse button -->
+                <button id="collapseBtn" class="btn btn-sm btn-light" title="Collapse/Expand" aria-pressed="false"><i
+                        class="fas fa-angle-left"></i></button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main id="main" class="main">
+        <header class="topbar">
+            <div class="d-flex align-items-center gap-3">
+                <button id="mobileToggle" class="btn btn-light d-md-none" title="Open sidebar"><i
+                        class="fas fa-bars"></i></button>
+                <h3 class="title-page" id="pageTitle">Dashboard</h3>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <input class="form-control form-control-sm" placeholder="Search patients, appointments..."
+                    style="width:300px" />
+                <div><i class="fas fa-bell"></i></div>
+            </div>
+        </header>
+
+        <section class="p-4">
+            <div class="card-rounded mb-4">
+                <h5 style="color:var(--brand-1)">Dashboard</h5>
+                <p class="text-muted mb-0">Summary view. Click sidebar items to open pages.</p>
+            </div>
+
+            <div id="contentArea">
+                <!-- default dashboard content -->
+                <div id="page-dashboard" class="card-rounded">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <div class="p-3"><strong>1,247</strong>
+                                <div class="text-muted">Total Patients</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="p-3"><strong>89</strong>
+                                <div class="text-muted">Today's Appointments</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="p-3"><strong>45,680</strong>
+                                <div class="text-muted">Monthly Revenue</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="p-3"><strong>24</strong>
+                                <div class="text-muted">Active Doctors</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 table-responsive card-rounded" style="padding:12px">
+                        <h6 style="color:var(--brand-1)">Recent Patients</h6>
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Dept</th>
+                                    <th>Last Visit</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>PAT001</td>
+                                    <td>John Smith</td>
+                                    <td>Cardiology</td>
+                                    <td>2024-01-15</td>
+                                    <td><span class="badge bg-success">Active</span></td>
+                                </tr>
+                                <tr>
+                                    <td>PAT002</td>
+                                    <td>Sarah Johnson</td>
+                                    <td>Dermatology</td>
+                                    <td>2024-01-14</td>
+                                    <td><span class="badge bg-warning">Pending</span></td>
+                                </tr>
+                                <tr>
+                                    <td>PAT003</td>
+                                    <td>Mike Davis</td>
+                                    <td>Orthopedics</td>
+                                    <td>2024-01-13</td>
+                                    <td><span class="badge bg-success">Active</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- placeholder pages inserted dynamically -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Elements
+        const sidebar = document.getElementById('appSidebar');
+        const main = document.getElementById('main');
+        const collapseBtn = document.getElementById('collapseBtn');
+        const mobileToggle = document.getElementById('mobileToggle');
+        const navArea = document.getElementById('navArea');
+
+        // Helper: set aria / icons on collapse btn
+        function setCollapseState(collapsed) {
+            sidebar.classList.toggle('collapsed', collapsed);
+            main.classList.toggle('compact', collapsed);
+            collapseBtn.setAttribute('aria-pressed', String(collapsed));
+            collapseBtn.innerHTML = collapsed ? '<i class="fas fa-angle-right"></i>' : '<i class="fas fa-angle-left"></i>';
+        }
+
+        // Initial: not collapsed
+        let isCollapsed = false;
+        setCollapseState(isCollapsed);
+
+        // Toggle collapse
+        collapseBtn.addEventListener('click', () => {
+            isCollapsed = !isCollapsed;
+            setCollapseState(isCollapsed);
+            // when collapsing, close all submenus to avoid overflow
+            if (isCollapsed) {
+                document.querySelectorAll('.submenu, .subsubmenu').forEach(s => { s.classList.remove('show'); s.setAttribute('aria-hidden', 'true'); });
+                document.querySelectorAll('.nav-btn .chev').forEach(c => c.style.transform = '');
+            }
+        });
+
+        // Mobile: show/hide sidebar
+        mobileToggle?.addEventListener('click', () => {
+            sidebar.classList.toggle('show');
+        });
+
+        // Nav click handlers (delegate)
+        document.getElementById('mainNav').addEventListener('click', (e) => {
+            const btn = e.target.closest('.nav-btn');
+            if (!btn) return;
+            const action = btn.dataset.action;
+            const toggle = btn.dataset.toggle;
+            const target = btn.dataset.target;
+
+            // If sidebar collapsed and this button has submenu => auto expand first
+            if (isCollapsed && (toggle === 'submenu' || toggle === 'subsubmenu')) {
+                // expand then toggle submenu after animation
+                isCollapsed = false;
+                setCollapseState(false);
+                setTimeout(() => handleToggle(btn), 240);
+                return;
+            }
+
+            if (toggle) {
+                handleToggle(btn);
+                return;
+            }
+            if (action === 'nav') {
+                // navigate to section - for demo, swap a simple content
+                document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('active'));
+                btn.classList.add('active');
+                openSection(target);
+                // On small screens hide sidebar after selection
+                if (window.innerWidth <= 900) sidebar.classList.remove('show');
+            }
+        });
+
+        // Toggle submenu or subsubmenu
+        function handleToggle(btn) {
+            const target = btn.dataset.target;
+            if (!target) return;
+            const el = document.getElementById(target);
+            if (!el) return;
+            const willOpen = !el.classList.contains('show');
+            // close sibling menus at same level
+            const parent = el.parentElement;
+            parent.querySelectorAll(':scope > .submenu, :scope > .subsubmenu').forEach(s => { if (s !== el) { s.classList.remove('show'); s.setAttribute('aria-hidden', 'true'); } });
+            el.classList.toggle('show', willOpen);
+            el.setAttribute('aria-hidden', String(!willOpen));
+            // rotate chevron
+            const chev = btn.querySelector('.chev');
+            if (chev) chev.style.transform = willOpen ? 'rotate(180deg)' : '';
+            btn.setAttribute('aria-expanded', String(willOpen));
+        }
+
+        // Basic in-place section loader (demo)
+        function openSection(key) {
+            const content = document.getElementById('contentArea');
+            const pageTitle = document.getElementById('pageTitle');
+
+            // quick mapping
+            const names = {
+                dashboard: 'Dashboard',
+                ipd: 'IPD Registration',
+                opdVisit: 'OPD Visit',
+                opdList: 'OPD List',
+                patientList: 'Patients List',
+                ipdBilling: 'IPD Billing',
+                opdBilling: 'OPD Billing',
+                reports: 'Reports',
+                settings: 'Settings'
+            };
+            pageTitle.textContent = names[key] || 'Dashboard';
+
+            // Simple content injection for demo — you can replace with AJAX/templates
+            if (key === 'dashboard' || !key) {
+                // restore default dashboard - simple approach: reload the page fragment content
+                content.innerHTML = document.getElementById('page-dashboard').outerHTML;
+            } else if (key === 'patientList' || key === 'ipd' || key === 'opdList') {
+                content.innerHTML = `<div class="card-rounded">
+          <h5 style="color:var(--brand-1)">${names[key] || key}</h5>
+          <p class="text-muted">This is the ${names[key]} page (demo content).</p>
+        </div>`;
+            } else {
+                content.innerHTML = `<div class="card-rounded">
+          <h5 style="color:var(--brand-1)">${names[key] || key}</h5>
+          <p class="text-muted">Module content for ${names[key] || key} (demo).</p>
+        </div>`;
+            }
+        }
+
+        // Accessibility: keyboard nav for sidebar area (Enter/Space triggers)
+        navArea.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                const btn = document.activeElement.closest('.nav-btn');
+                if (btn) { btn.click(); e.preventDefault(); }
+            }
+        });
+
+        // Optional: hover-to-peek behavior (uncomment if wanted)
+        // When collapsed, hovering sidebar will temporarily expand it (peek) and contract on mouseleave.
+        // Uncomment the block below to enable peek behaviour.
+
+        /*
+        sidebar.addEventListener('mouseenter', () => {
+          if (isCollapsed) {
+            sidebar.classList.add('peek');
+            sidebar.style.width = 'var(--sidebar-w)';
+          }
+        });
+        sidebar.addEventListener('mouseleave', () => {
+          if (isCollapsed) {
+            sidebar.classList.remove('peek');
+            sidebar.style.width = 'var(--sidebar-collapsed-w)';
+          }
+        });
+        */
+
+        // Close all submenus on page load (clean state)
+        document.querySelectorAll('.submenu, .subsubmenu').forEach(s => { s.classList.remove('show'); s.setAttribute('aria-hidden', 'true'); });
+
+        // Make sure initial aria states consistent
+        document.querySelectorAll('[data-toggle]').forEach(b => b.setAttribute('aria-expanded', 'false'));
+
+        // Restore dashboard content on load
+        window.addEventListener('DOMContentLoaded', () => {
+            openSection('dashboard');
+            // if small screen, collapse sidebar by hiding it (mobile)
+            if (window.innerWidth <= 900) { sidebar.classList.remove('collapsed'); sidebar.classList.remove('show'); main.classList.remove('compact'); }
+        });
+    </script>
+</body>
+
+</html>

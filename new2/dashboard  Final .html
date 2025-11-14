@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediCare Dashboard - Healthcare Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            box-sizing: border-box;
+            background: linear-gradient(135deg, #F4F7FA 0%, #D9E6EF 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        /* Custom Colors */
+        .custom-blue-dark { background-color: #0F4D78 !important; }
+        .custom-blue-medium { background-color: #49779C !important; }
+        .custom-blue-darker { background-color: #093656 !important; }
+        .custom-light { background-color: #F4F7FA !important; }
+        .custom-light-blue { background-color: #D9E6EF !important; }
+        .text-custom-blue-dark { color: #0F4D78 !important; }
+        .text-custom-blue-medium { color: #49779C !important; }
+        .text-custom-blue-darker { color: #093656 !important; }
+        .border-custom-light-blue { border-color: #D9E6EF !important; }
+        
+        /* Layout */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 280px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid #D9E6EF;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        
+        .main-content {
+            margin-left: 280px;
+            min-height: 100vh;
+        }
+        
+        .top-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid #D9E6EF;
+            position: sticky;
+            top: 0;
+            z-index: 999;
+        }
+        
+        /* Cards */
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(217, 230, 239, 0.5);
+            border-radius: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(15, 77, 120, 0.15);
+        }
+        
+        .chart-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(217, 230, 239, 0.5);
+            border-radius: 15px;
+        }
+        
+        /* Sidebar Navigation */
+        .nav-link {
+            color: #49779C;
+            border-radius: 10px;
+            margin: 2px 0;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            background-color: #0F4D78;
+            color: white;
+        }
+        
+        .nav-link i {
+            width: 20px;
+            text-align: center;
+        }
+        
+        /* Buttons */
+        .btn-custom {
+            background: linear-gradient(135deg, #0F4D78, #49779C);
+            border: none;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-custom:hover {
+            background: linear-gradient(135deg, #093656, #0F4D78);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(15, 77, 120, 0.3);
+        }
+        
+        /* Animations */
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+        
+        @keyframes floating {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+        
+        .pulse-dot {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* Table */
+        .table-custom {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        
+        .table-custom th {
+            background-color: #0F4D78;
+            color: white;
+            border: none;
+        }
+        
+        .table-custom td {
+            border-color: #D9E6EF;
+        }
+        
+        /* Progress bars */
+        .progress-custom {
+            height: 8px;
+            border-radius: 10px;
+            background-color: #D9E6EF;
+        }
+        
+        .progress-bar-custom {
+            background: linear-gradient(135deg, #0F4D78, #49779C);
+            border-radius: 10px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .sidebar.show {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+        }
+        
+        /* Counter Animation */
+        .counter {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #0F4D78;
+        }
+        
+        /* Activity Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #D9E6EF;
+        }
+        
+        .timeline-item {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -23px;
+            top: 5px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #0F4D78;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="p-4">
+            <!-- Logo -->
+            <div class="d-flex align-items-center mb-4">
+                <div class="custom-blue-dark rounded-3 p-2 me-3 floating">
+                    <i class="fas fa-hospital text-white fs-4"></i>
+                </div>
+                <div>
+                    <h4 class="text-custom-blue-dark mb-0 fw-bold">MediCare</h4>
+                    <small class="text-custom-blue-medium">Dashboard</small>
+                </div>
+            </div>
+            
+            <!-- Navigation -->
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#" data-section="dashboard">
+                        <i class="fas fa-tachometer-alt me-3"></i>Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-section="patients">
+                        <i class="fas fa-users me-3"></i>Patients
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-section="appointments">
+                        <i class="fas fa-calendar-alt me-3"></i>Appointments
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-section="doctors">
+                        <i class="fas fa-user-md me-3"></i>Doctors
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-section="reports">
+                        <i class="fas fa-chart-bar me-3"></i>Reports
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-section="billing">
+                        <i class="fas fa-file-invoice-dollar me-3"></i>Billing
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-section="inventory">
+                        <i class="fas fa-boxes me-3"></i>Inventory
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-section="settings">
+                        <i class="fas fa-cog me-3"></i>Settings
+                    </a>
+                </li>
+            </ul>
+            
+            <!-- User Profile -->
+            <div class="mt-auto pt-4 border-top border-custom-light-blue">
+                <div class="d-flex align-items-center">
+                    <div class="custom-blue-medium rounded-circle p-2 me-3">
+                        <i class="fas fa-user text-white"></i>
+                    </div>
+                    <div>
+                        <div class="fw-semibold text-custom-blue-dark">Dr. Sarah Wilson</div>
+                        <small class="text-custom-blue-medium">Administrator</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Header -->
+        <header class="top-header p-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <button class="btn btn-link d-md-none me-3" id="sidebarToggle">
+                        <i class="fas fa-bars text-custom-blue-dark"></i>
+                    </button>
+                    <h2 class="text-custom-blue-dark mb-0 fw-bold">Dashboard Overview</h2>
+                </div>
+                
+                <div class="d-flex align-items-center">
+                    <!-- Search -->
+                    <div class="input-group me-3" style="width: 300px;">
+                        <input type="text" class="form-control border-custom-light-blue" placeholder="Search patients, appointments...">
+                        <button class="btn btn-outline-secondary border-custom-light-blue" type="button">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Notifications -->
+                    <div class="dropdown me-3">
+                        <button class="btn btn-link position-relative" data-bs-toggle="dropdown">
+                            <i class="fas fa-bell text-custom-blue-dark fs-5"></i>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                3
+                            </span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#">New appointment request</a></li>
+                            <li><a class="dropdown-item" href="#">Lab results ready</a></li>
+                            <li><a class="dropdown-item" href="#">System maintenance scheduled</a></li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Status -->
+                    <div class="d-flex align-items-center">
+                        <div class="pulse-dot bg-success rounded-circle me-2" style="width: 8px; height: 8px;"></div>
+                        <span class="text-custom-blue-darker fw-semibold small">System Online</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <div class="p-4" id="dashboardContent">
+            <!-- Statistics Cards -->
+            <div class="row g-4 mb-4">
+                <div class="col-xl-3 col-md-6">
+                    <div class="stat-card p-4 h-100">
+                        <div class="d-flex align-items-center">
+                            <div class="custom-blue-dark rounded-3 p-3 me-3">
+                                <i class="fas fa-users text-white fs-4"></i>
+                            </div>
+                            <div>
+                                <div class="counter" data-target="1247">0</div>
+                                <div class="text-custom-blue-medium fw-semibold">Total Patients</div>
+                                <small class="text-success">
+                                    <i class="fas fa-arrow-up me-1"></i>12% from last month
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-xl-3 col-md-6">
+                    <div class="stat-card p-4 h-100">
+                        <div class="d-flex align-items-center">
+                            <div class="custom-blue-medium rounded-3 p-3 me-3">
+                                <i class="fas fa-calendar-check text-white fs-4"></i>
+                            </div>
+                            <div>
+                                <div class="counter" data-target="89">0</div>
+                                <div class="text-custom-blue-medium fw-semibold">Today's Appointments</div>
+                                <small class="text-info">
+                                    <i class="fas fa-clock me-1"></i>Next at 2:30 PM
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-xl-3 col-md-6">
+                    <div class="stat-card p-4 h-100">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-success rounded-3 p-3 me-3">
+                                <i class="fas fa-dollar-sign text-white fs-4"></i>
+                            </div>
+                            <div>
+                                <div class="counter" data-target="45680">0</div>
+                                <div class="text-custom-blue-medium fw-semibold">Monthly Revenue</div>
+                                <small class="text-success">
+                                    <i class="fas fa-arrow-up me-1"></i>8% increase
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-xl-3 col-md-6">
+                    <div class="stat-card p-4 h-100">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-warning rounded-3 p-3 me-3">
+                                <i class="fas fa-user-md text-white fs-4"></i>
+                            </div>
+                            <div>
+                                <div class="counter" data-target="24">0</div>
+                                <div class="text-custom-blue-medium fw-semibold">Active Doctors</div>
+                                <small class="text-custom-blue-medium">
+                                    <i class="fas fa-check-circle me-1"></i>All available
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="row g-4 mb-4 d-none">
+                <div class="col-xl-8">
+                    <div class="chart-card p-4">
+                        <h5 class="text-custom-blue-dark fw-bold mb-4">Patient Visits Overview</h5>
+                        <canvas id="visitsChart" height="100"></canvas>
+                    </div>
+                </div>
+                
+                <div class="col-xl-4">
+                    <div class="chart-card p-4">
+                        <h5 class="text-custom-blue-dark fw-bold mb-4">Department Distribution</h5>
+                        <canvas id="departmentChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions & Recent Activity -->
+            <div class="row g-4 mb-4">
+                <div class="col-xl-4">
+                    <div class="chart-card p-4">
+                        <h5 class="text-custom-blue-dark fw-bold mb-4">Quick Actions</h5>
+                        <div class="d-grid gap-3">
+                            <button class="btn btn-custom text-white py-3" onclick="showSection('patients')">
+                                <i class="fas fa-user-plus me-2"></i>Register New Patient
+                            </button>
+                            <button class="btn btn-outline-primary py-3">
+                                <i class="fas fa-calendar-plus me-2"></i>Schedule Appointment
+                            </button>
+                            <button class="btn btn-outline-success py-3">
+                                <i class="fas fa-file-medical me-2"></i>Create Medical Record
+                            </button>
+                            <button class="btn btn-outline-info py-3">
+                                <i class="fas fa-pills me-2"></i>Manage Prescriptions
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-xl-4">
+                    <div class="chart-card p-4">
+                        <h5 class="text-custom-blue-dark fw-bold mb-4">Recent Activities</h5>
+                        <div class="timeline">
+                            <div class="timeline-item">
+                                <div class="fw-semibold text-custom-blue-dark">New patient registered</div>
+                                <small class="text-custom-blue-medium">John Smith - 2 minutes ago</small>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="fw-semibold text-custom-blue-dark">Appointment completed</div>
+                                <small class="text-custom-blue-medium">Dr. Johnson with Sarah Davis - 15 minutes ago</small>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="fw-semibold text-custom-blue-dark">Lab results uploaded</div>
+                                <small class="text-custom-blue-medium">Blood test for Mike Wilson - 1 hour ago</small>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="fw-semibold text-custom-blue-dark">Prescription issued</div>
+                                <small class="text-custom-blue-medium">Dr. Brown for Lisa Anderson - 2 hours ago</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-xl-4">
+                    <div class="chart-card p-4">
+                        <h5 class="text-custom-blue-dark fw-bold mb-4">System Status</h5>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="text-custom-blue-medium">Server Load</span>
+                                <span class="text-custom-blue-dark fw-semibold">45%</span>
+                            </div>
+                            <div class="progress progress-custom">
+                                <div class="progress-bar progress-bar-custom" style="width: 45%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="text-custom-blue-medium">Database Usage</span>
+                                <span class="text-custom-blue-dark fw-semibold">67%</span>
+                            </div>
+                            <div class="progress progress-custom">
+                                <div class="progress-bar progress-bar-custom" style="width: 67%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="text-custom-blue-medium">Storage</span>
+                                <span class="text-custom-blue-dark fw-semibold">23%</span>
+                            </div>
+                            <div class="progress progress-custom">
+                                <div class="progress-bar progress-bar-custom" style="width: 23%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <div class="d-flex align-items-center justify-content-between p-3 bg-light rounded">
+                                <div>
+                                    <div class="fw-semibold text-custom-blue-dark">Last Backup</div>
+                                    <small class="text-custom-blue-medium">Today at 3:00 AM</small>
+                                </div>
+                                <i class="fas fa-check-circle text-success fs-4"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Patients Table -->
+            <div class="chart-card p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="text-custom-blue-dark fw-bold mb-0">Recent Patients</h5>
+                    <button class="btn btn-outline-primary btn-sm" onclick="showSection('patients')">
+                        View All Patients
+                    </button>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table table-custom">
+                        <thead>
+                            <tr>
+                                <th>Patient ID</th>
+                                <th>Name</th>
+                                <th>Age</th>
+                                <th>Department</th>
+                                <th>Last Visit</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>PAT001</td>
+                                <td>John Smith</td>
+                                <td>45</td>
+                                <td>Cardiology</td>
+                                <td>2024-01-15</td>
+                                <td><span class="badge bg-success">Active</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary me-1">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-secondary">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>PAT002</td>
+                                <td>Sarah Johnson</td>
+                                <td>32</td>
+                                <td>Dermatology</td>
+                                <td>2024-01-14</td>
+                                <td><span class="badge bg-warning">Pending</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary me-1">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-secondary">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>PAT003</td>
+                                <td>Mike Davis</td>
+                                <td>28</td>
+                                <td>Orthopedics</td>
+                                <td>2024-01-13</td>
+                                <td><span class="badge bg-success">Active</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary me-1">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-secondary">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>PAT004</td>
+                                <td>Lisa Wilson</td>
+                                <td>55</td>
+                                <td>Neurology</td>
+                                <td>2024-01-12</td>
+                                <td><span class="badge bg-info">Follow-up</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary me-1">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-secondary">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Counter Animation
+            const counters = document.querySelectorAll('.counter');
+            counters.forEach(counter => {
+                const target = parseInt(counter.getAttribute('data-target'));
+                const increment = target / 100;
+                let current = 0;
+                
+                const updateCounter = () => {
+                    if (current < target) {
+                        current += increment;
+                        counter.textContent = Math.floor(current).toLocaleString();
+                        setTimeout(updateCounter, 20);
+                    } else {
+                        counter.textContent = target.toLocaleString();
+                    }
+                };
+                
+                updateCounter();
+            });
+
+            // Sidebar Toggle
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebar = document.querySelector('.sidebar');
+            
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('show');
+                });
+            }
+
+            // Navigation
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const section = this.getAttribute('data-section');
+                    showSection(section);
+                });
+            });
+
+            // Initialize Charts
+            initializeCharts();
+        });
+
+        function showSection(section) {
+            const content = document.getElementById('dashboardContent');
+            const header = document.querySelector('.top-header h2');
+            
+            switch(section) {
+                case 'patients':
+                    header.textContent = 'Patient Management';
+                    content.innerHTML = `
+                        <div class="chart-card p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h5 class="text-custom-blue-dark fw-bold mb-0">All Patients</h5>
+                                <button class="btn btn-custom text-white">
+                                    <i class="fas fa-user-plus me-2"></i>Add New Patient
+                                </button>
+                            </div>
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control" placeholder="Search patients...">
+                                </div>
+                                <div class="col-md-3">
+                                    <select class="form-select">
+                                        <option>All Departments</option>
+                                        <option>Cardiology</option>
+                                        <option>Dermatology</option>
+                                        <option>Orthopedics</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <select class="form-select">
+                                        <option>All Status</option>
+                                        <option>Active</option>
+                                        <option>Pending</option>
+                                        <option>Follow-up</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <p class="text-custom-blue-medium">Patient management interface would be displayed here with full CRUD operations.</p>
+							  <div class="table-responsive">
+                    <table class="table table-custom">
+                        <thead>
+                            <tr>
+                                <th>Patient ID</th>
+                                <th>Name</th>
+                                <th>Age</th>
+                                <th>Department</th>
+                                <th>Last Visit</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>PAT001</td>
+                                <td>John Smith</td>
+                                <td>45</td>
+                                <td>Cardiology</td>
+                                <td>2024-01-15</td>
+                                <td><span class="badge bg-success">Active</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary me-1">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-secondary">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>PAT002</td>
+                                <td>Sarah Johnson</td>
+                                <td>32</td>
+                                <td>Dermatology</td>
+                                <td>2024-01-14</td>
+                                <td><span class="badge bg-warning">Pending</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary me-1">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-secondary">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>PAT003</td>
+                                <td>Mike Davis</td>
+                                <td>28</td>
+                                <td>Orthopedics</td>
+                                <td>2024-01-13</td>
+                                <td><span class="badge bg-success">Active</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary me-1">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-secondary">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>PAT004</td>
+                                <td>Lisa Wilson</td>
+                                <td>55</td>
+                                <td>Neurology</td>
+                                <td>2024-01-12</td>
+                                <td><span class="badge bg-info">Follow-up</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary me-1">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-secondary">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+							
+                        </div>
+                    `;
+                    break;
+                case 'appointments':
+                    header.textContent = 'Appointment Management';
+                    content.innerHTML = `
+                        <div class="chart-card p-4">
+                            <h5 class="text-custom-blue-dark fw-bold mb-4">Appointment Calendar</h5>
+                            <p class="text-custom-blue-medium">Appointment scheduling and management interface would be displayed here.</p>
+                        </div>
+                    `;
+                    break;
+                case 'doctors':
+                    header.textContent = 'Doctor Management';
+                    content.innerHTML = `
+                        <div class="chart-card p-4">
+                            <h5 class="text-custom-blue-dark fw-bold mb-4">Medical Staff</h5>
+                            <p class="text-custom-blue-medium">Doctor profiles and schedule management would be displayed here.</p>
+                        </div>
+                    `;
+                    break;
+                default:
+                    header.textContent = 'Dashboard Overview';
+                    location.reload(); // Reload to show dashboard
+            }
+        }
+
+        function initializeCharts() {
+            // Visits Chart
+            const visitsCtx = document.getElementById('visitsChart').getContext('2d');
+            new Chart(visitsCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    datasets: [{
+                        label: 'Patient Visits',
+                        data: [120, 150, 180, 200, 170, 190, 220, 250, 230, 280, 300, 320],
+                        borderColor: '#0F4D78',
+                        backgroundColor: 'rgba(15, 77, 120, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: '#D9E6EF'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: '#D9E6EF'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Department Chart
+            const deptCtx = document.getElementById('departmentChart').getContext('2d');
+            new Chart(deptCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Cardiology', 'Dermatology', 'Orthopedics', 'Neurology', 'Pediatrics'],
+                    datasets: [{
+                        data: [30, 25, 20, 15, 10],
+                        backgroundColor: [
+                            '#0F4D78',
+                            '#49779C',
+                            '#093656',
+                            '#6B9BC3',
+                            '#8BB5D1'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9894289a44e585b4',t:'MTc1OTU3NTQ0OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

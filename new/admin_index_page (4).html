@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hospital Admin Dashboard</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary-color: #093656;
+            --primary-hover: #0d4470;
+            --card-bg: #ffffff;
+            --text-dark: #1a1a1a;
+            --text-light: #eaeaea;
+            --body-bg: #f5f7fa;
+        }
+
+        body.dark-mode {
+            --card-bg: #1f2937;
+            --body-bg: #111827;
+            --text-dark: #ffffff;
+            --text-light: #d1d5db;
+            --primary-color: #1e40af;
+            --primary-hover: #1e3a8a;
+        }
+
+        body {
+            background: var(--body-bg);
+            font-family: "Inter", sans-serif;
+            color: var(--text-dark);
+        }
+
+        /* Sidebar */
+        #sidebar {
+            width: 250px;
+            background: var(--primary-color);
+            min-height: 100vh;
+            transition: all 0.3s;
+        }
+        #sidebar .nav-link { color: #cbd5e1; }
+        #sidebar .nav-link:hover, #sidebar .nav-link.active {
+            background: var(--primary-hover);
+            color: #fff;
+        }
+        #sidebar.collapsed { width: 80px; }
+        #sidebar.collapsed .label { display: none; }
+
+        /* Top Navbar */
+        .top-navbar {
+            background: var(--card-bg);
+            border-bottom: 1px solid #e5e7eb;
+            height: 60px;
+        }
+
+        /* Dashboard Cards */
+        .dash-card {
+            padding: 20px;
+            background: var(--card-bg);
+            border-radius: 14px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.05);
+        }
+
+        /* Dark Mode Toggle */
+        .dark-toggle { cursor: pointer; }
+
+        @media(max-width: 992px){
+            #sidebar { position: fixed; left: -260px; }
+            #sidebar.active { left: 0; }
+        }
+    </style>
+</head>
+
+<body>
+<div class="d-flex">
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="p-3">
+        <h4 class="text-white fw-bold mb-4 label">Hospital</h4>
+        <ul class="nav flex-column gap-2">
+            <li><a class="nav-link active" href="#"><i class="bi bi-speedometer2 me-2"></i> <span class="label">Dashboard</span></a></li>
+            <li><a class="nav-link" href="#"><i class="bi bi-people"></i> <span class="ms-2 label">Patients</span></a></li>
+            <li><a class="nav-link" href="#"><i class="bi bi-hospital"></i> <span class="ms-2 label">OPD</span></a></li>
+            <li><a class="nav-link" href="#"><i class="bi bi-journal-medical"></i> <span class="ms-2 label">IPD</span></a></li>
+            <li><a class="nav-link" href="#"><i class="bi bi-receipt"></i> <span class="ms-2 label">Billing</span></a></li>
+            <li><a class="nav-link" href="#"><i class="bi bi-gear"></i> <span class="ms-2 label">Settings</span></a></li>
+            <li class="mt-3"><a class="nav-link text-danger" href="#"><i class="bi bi-box-arrow-right"></i> <span class="ms-2 label">Logout</span></a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-grow-1">
+
+        <!-- Top Navbar -->
+        <nav class="top-navbar d-flex align-items-center justify-content-between px-3">
+            <div class="d-flex align-items-center gap-3">
+                <button class="btn btn-outline-primary d-lg-none" id="menu-toggle"><i class="bi bi-list"></i></button>
+                <button class="btn btn-outline-secondary" id="collapse-toggle"><i class="bi bi-layout-sidebar-inset"></i></button>
+                <h5 class="fw-semibold m-0">Dashboard</h5>
+            </div>
+
+            <div class="d-flex align-items-center gap-3">
+                <i class="bi bi-brightness-high fs-4 dark-toggle" id="themeToggle"></i>
+                <i class="bi bi-bell fs-5"></i>
+                <i class="bi bi-person-circle fs-4"></i>
+            </div>
+        </nav>
+
+        <!-- Dashboard Widgets -->
+        <div class="container-fluid p-4">
+            <div class="row g-4">
+                <div class="col-md-3"><div class="dash-card"><h6>Total Patients</h6><h3>1,245</h3></div></div>
+                <div class="col-md-3"><div class="dash-card"><h6>Today's Appointments</h6><h3>84</h3></div></div>
+                <div class="col-md-3"><div class="dash-card"><h6>OPD Cases</h6><h3>56</h3></div></div>
+                <div class="col-md-3"><div class="dash-card"><h6>IPD Admissions</h6><h3>12</h3></div></div>
+            </div>
+
+            <!-- Chart Section -->
+            <div class="row mt-4">
+                <div class="col-lg-6"><div class="dash-card"><canvas id="chart1"></canvas></div></div>
+                <div class="col-lg-6"><div class="dash-card"><canvas id="chart2"></canvas></div></div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const sidebar = document.getElementById('sidebar');
+    document.getElementById('menu-toggle').onclick = () => sidebar.classList.toggle('active');
+    document.getElementById('collapse-toggle').onclick = () => sidebar.classList.toggle('collapsed');
+    document.getElementById('themeToggle').onclick = () => document.body.classList.toggle('dark-mode');
+
+    // Charts
+    new Chart(document.getElementById('chart1'), {
+        type: 'line',
+        data: { labels: ['Mon','Tue','Wed','Thu','Fri'], datasets: [{ data:[40,50,45,60,70] }] }
+    });
+
+    new Chart(document.getElementById('chart2'), {
+        type: 'bar',
+        data: { labels: ['OPD','IPD','Surgery'], datasets: [{ data:[80,20,15] }] }
+    });
+</script>
+</body>
+
+<!-- Additional Templates -->
+
+<!-- Login Page Template -->
+<section id="login-page" class="d-none p-5" style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#eef2f7;">
+    <div class="card shadow p-4" style="max-width:400px;width:100%;border-radius:16px;">
+        <h3 class="text-center mb-3">Login</h3>
+        <input type="text" class="form-control mb-3" placeholder="Email" />
+        <input type="password" class="form-control mb-3" placeholder="Password" />
+        <button class="btn btn-primary w-100">Login</button>
+    </div>
+</section>
+
+<!-- OPD Page Template -->
+<section id="opd-page" class="d-none p-4">
+    <h4 class="fw-bold mb-3">OPD Records</h4>
+    <div class="dash-card">
+        <table class="table table-striped">
+            <thead><tr><th>Patient</th><th>Date</th><th>Doctor</th><th>Status</th></tr></thead>
+            <tbody><tr><td>John</td><td>2025-02-01</td><td>Dr. Anil</td><td>Checked</td></tr></tbody>
+        </table>
+    </div>
+</section>
+
+<!-- IPD Page Template -->
+<section id="ipd-page" class="d-none p-4">
+    <h4 class="fw-bold mb-3">IPD Admissions</h4>
+    <div class="dash-card">
+        <table class="table table-hover">
+            <thead><tr><th>Patient</th><th>Room</th><th>Doctor</th><th>Duration</th></tr></thead>
+            <tbody><tr><td>Mary</td><td>204</td><td>Dr. Mehta</td><td>3 Days</td></tr></tbody>
+        </table>
+    </div>
+</section>
+
+<!-- Patients List Template -->
+<section id="patients-page" class="d-none p-4">
+    <h4 class="fw-bold mb-3">Patients List</h4>
+    <div class="dash-card">
+        <table class="table">
+            <thead><tr><th>Name</th><th>Age</th><th>Contact</th><th>Action</th></tr></thead>
+            <tbody><tr><td>Amit</td><td>32</td><td>9876543210</td><td><button class="btn btn-sm btn-primary">View</button></td></tr></tbody>
+        </table>
+    </div>
+</section>
+
+<!-- Billing UI -->
+<section id="billing-page" class="d-none p-4">
+    <h4 class="fw-bold mb-3">Billing</h4>
+    <div class="dash-card">
+        <label class="form-label">Patient</label>
+        <input type="text" class="form-control mb-2" placeholder="Patient Name" />
+
+        <label class="form-label">Amount</label>
+        <input type="number" class="form-control mb-2" placeholder="Amount" />
+
+        <button class="btn btn-success w-100 mt-2">Generate Bill</button>
+    </div>
+</section>
+
+<!-- Color Theme Selector -->
+<div class="position-fixed end-0 top-50 translate-middle-y p-3" style="z-index:2000;">
+    <div class="dash-card p-3">
+        <h6 class="fw-bold mb-2">Theme Colors</h6>
+        <div class="d-flex gap-2">
+            <div class="theme-circle" style="width:25px;height:25px;border-radius:50%;background:#093656;cursor:pointer;" data-color="#093656"></div>
+            <div class="theme-circle" style="width:25px;height:25px;border-radius:50%;background:#1e3a8a;cursor:pointer;" data-color="#1e3a8a"></div>
+            <div class="theme-circle" style="width:25px;height:25px;border-radius:50%;background:#0d9488;cursor:pointer;" data-color="#0d9488"></div>
+            <div class="theme-circle" style="width:25px;height:25px;border-radius:50%;background:#b91c1c;cursor:pointer;" data-color="#b91c1c"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.querySelectorAll('.theme-circle').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.documentElement.style.setProperty('--primary-color', btn.dataset.color);
+        });
+    });
+</script>
+
+
+
+<!-- FULL TAILWIND VERSION (separate template) -->
+<!-- Copy the below into a new file (tailwind-dashboard.html) and include Tailwind CDN -->
+<!--
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <title>Tailwind Hospital Dashboard</title>
+</head>
+<body class="bg-slate-50 text-slate-800">
+  <div class="flex min-h-screen">
+    <aside class="w-64 bg-gradient-to-b from-sky-800 to-sky-700 text-white p-4">
+      <h2 class="text-xl font-bold mb-6">Hospital</h2>
+      <nav class="space-y-2">
+        <a class="flex items-center gap-2 p-2 rounded hover:bg-white/10" href="#"><svg class="w-5 h-5" ...></svg><span>Dashboard</span></a>
+        <!-- more items -->
+      </nav>
+    </aside>
+
+   
+  </div>
+</body>
+</html>
+
+
+<!-- Animations & Extra Charts -->
+<script>
+  // Simple reveal animation for cards
+  document.querySelectorAll('.dash-card').forEach((el, i) => {
+    el.style.opacity = 0;
+    el.style.transform = 'translateY(10px)';
+    setTimeout(()=>{ el.style.transition='opacity 400ms ease, transform 400ms ease'; el.style.opacity=1; el.style.transform='none'; }, 120*i);
+  });
+
+  // Extra charts (doughnut & area)
+  const ctxD = document.createElement('canvas'); document.getElementById('chart1').parentElement.appendChild(ctxD);
+  new Chart(ctxD, { type: 'doughnut', data: { labels:['OPD','IPD','Other'], datasets:[{ data:[55,30,15] }] } });
+
+  const ctxA = document.createElement('canvas'); document.getElementById('chart2').parentElement.appendChild(ctxA);
+  new Chart(ctxA, { type: 'line', data: { labels:['Jan','Feb','Mar','Apr','May'], datasets:[{ label:'Admissions', fill:true, data:[30,45,28,60,80] }] }, options:{scales:{y:{beginAtZero:true}}} });
+</script>
+
+<!-- Multi-step Form (Billing Checkout / Patient Intake) -->
+<section id="multistep" class="d-none p-4">
+  <div class="dash-card" style="max-width:760px;margin:auto;">
+    <h5 class="mb-3">Patient Intake</h5>
+    <div id="steps">
+      <form id="multiForm">
+        <div class="step" data-step="1">
+          <label class="form-label">Name</label>
+          <input class="form-control mb-2" name="name" required>
+          <label class="form-label">Age</label>
+          <input class="form-control mb-2" name="age" type="number" required>
+        </div>
+        <div class="step d-none" data-step="2">
+          <label class="form-label">Contact</label>
+          <input class="form-control mb-2" name="contact" required>
+          <label class="form-label">Symptoms</label>
+          <textarea class="form-control mb-2" name="symptoms"></textarea>
+        </div>
+        <div class="step d-none" data-step="3">
+          <h6>Confirm & Submit</h6>
+          <div id="summary"></div>
+        </div>
+        <div class="d-flex justify-content-between mt-3">
+          <button type="button" class="btn btn-secondary" id="prevBtn">Previous</button>
+          <div>
+            <button type="button" class="btn btn-outline-primary" id="nextBtn">Next</button>
+            <button type="submit" class="btn btn-success d-none" id="submitBtn">Submit</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+<script>
+  (function(){
+    const steps = Array.from(document.querySelectorAll('#multiForm .step'));
+    let cur=0; function show(i){ steps.forEach((s,idx)=> s.classList.toggle('d-none', idx!==i)); }
+    show(cur);
+    document.getElementById('nextBtn').onclick = ()=>{ if(cur<steps.length-1){ cur++; show(cur); if(cur===steps.length-1){ document.getElementById('nextBtn').classList.add('d-none'); document.getElementById('submitBtn').classList.remove('d-none'); const f=new FormData(document.getElementById('multiForm')); let html=''; for(const [k,v] of f.entries()) html+=`<p><strong>${k}:</strong> ${v}</p>`; document.getElementById('summary').innerHTML=html; } }};
+    document.getElementById('prevBtn').onclick = ()=>{ if(cur>0){ cur--; show(cur); document.getElementById('nextBtn').classList.remove('d-none'); document.getElementById('submitBtn').classList.add('d-none'); }};
+    document.getElementById('multiForm').onsubmit = (e)=>{ e.preventDefault(); alert('Form submitted (demo)'); };
+  })();
+</script>
+
+<!-- Printable Billing PDF Layout -->
+<section id="print-bill" class="d-none p-4">
+  <div class="dash-card" style="max-width:720px;margin:auto;">
+    <div id="billArea">
+      <h3>Hospital Name</h3>
+      <p><strong>Patient:</strong> Sample Name</p>
+      <table class="table">
+        <thead><tr><th>Item</th><th>Price</th></tr></thead>
+        <tbody><tr><td>Consultation</td><td>500</td></tr><tr><td>Medicine</td><td>250</td></tr></tbody>
+        <tfoot><tr><th>Total</th><th>750</th></tr></tfoot>
+      </table>
+    </div>
+    <div class="d-flex gap-2 justify-content-end"><button class="btn btn-outline-secondary" id="previewPrint">Preview</button><button class="btn btn-primary" id="doPrint">Print / Save PDF</button></div>
+  </div>
+</section>
+<script>
+  document.getElementById('previewPrint').onclick = ()=> window.open().document.write(document.getElementById('billArea').outerHTML);
+  document.getElementById('doPrint').onclick = ()=>{ const w=window.open('','_blank'); w.document.write('<html><head><title>Bill</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"></head><body>'+document.getElementById('billArea').outerHTML+'</body></html>'); w.document.close(); w.print(); };
+</script>
+
+<!-- Patient Profile Page -->
+<section id="patient-profile" class="d-none p-4">
+  <div class="dash-card" style="max-width:900px;margin:auto;">
+    <div class="d-flex gap-4">
+      <div style="width:200px;">
+        <img src="https://via.placeholder.com/180" class="img-fluid rounded mb-2" />
+        <h5>Asha Sharma</h5>
+        <p class="text-muted">Patient ID: P-2025-001</p>
+      </div>
+      <div class="flex-grow-1">
+        <ul class="nav nav-tabs" id="profileTab" role="tablist">
+          <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab1">Overview</button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab2">Medical</button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab3">Billing</button></li>
+        </ul>
+        <div class="tab-content p-3">
+          <div class="tab-pane fade show active" id="tab1">DOB: 1990-04-12<br>Contact: 98xxxx</div>
+          <div class="tab-pane fade" id="tab2">Allergies: None<br>History: ...</div>
+          <div class="tab-pane fade" id="tab3">Last Bill: ₹750<br><button class="btn btn-sm btn-primary">View Bills</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- More Color Palettes (applied to CSS variables) -->
+
+
+</html>

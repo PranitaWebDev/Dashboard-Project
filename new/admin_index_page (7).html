@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Hospital Admin Dashboard — Fixed</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+  <style>
+    :root{
+      --primary-color:#093656; --primary-hover:#0d4470; --card-bg:#fff; --body-bg:#f5f7fa;
+    }
+    body{ background:var(--body-bg); font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial; color:#111827; }
+
+    /* Sidebar */
+    #sidebar{ width:250px; background:var(--primary-color); min-height:100vh; transition:width .25s ease; overflow:auto; }
+    #sidebar.collapsed{ width:80px; }
+    #sidebar .nav-link{ color:#cbd5e1; border-left:3px solid transparent; transition:all .22s ease; }
+    #sidebar .nav-link:hover{ background:var(--primary-hover); border-left:3px solid rgba(255,255,255,.95); padding-left:20px; }
+    #sidebar .active-item > .nav-link{ background:rgba(255,255,255,.12); border-left:3px solid rgba(255,255,255,.95); font-weight:600; }
+
+    /* Animated submenu slide via max-height */
+    .submenu, .sub-submenu{ max-height:0; overflow:hidden; transition:max-height .35s ease; }
+    .submenu.show, .sub-submenu.show{ max-height:800px; }
+
+    /* Top navbar */
+    .top-navbar{ height:60px; border-bottom:1px solid #e5e7eb; background:var(--card-bg); }
+
+    .dash-card{ background:var(--card-bg); border-radius:12px; padding:18px; box-shadow:0 6px 20px rgba(16,24,40,.04); }
+
+    /* arrow rotation */
+    .rotate-180{ transform:rotate(180deg); transition:transform .25s ease; }
+
+    @media (max-width:992px){ #sidebar{ position:fixed; left:-260px; z-index:1030; } #sidebar.active{ left:0; } }
+  </style>
+</head>
+
+<body>
+  <div class="d-flex">
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="p-3">
+      <h4 class="text-white fw-bold mb-3">Hospital</h4>
+
+      <ul class="nav flex-column gap-2">
+        <li class="text-white-50 small mb-1">MAIN MENU</li>
+
+        <li class="menu-item active-item">
+          <a class="nav-link d-flex align-items-center" href="#" data-target="dashboard">
+            <i class="bi bi-speedometer2 me-2"></i><span class="label">Dashboard</span>
+          </a>
+        </li>
+
+        <li class="text-white-50 small mt-3 mb-1">PATIENTS</li>
+
+        <li class="menu-item">
+          <a class="nav-link d-flex align-items-center justify-content-between toggle-menu" href="#" data-bs-toggle="collapse" data-target="#menuPatients" aria-expanded="false">
+            <div><i class="bi bi-people me-2"></i><span class="label">Patients</span></div>
+            <i class="bi bi-caret-down-fill"></i>
+          </a>
+
+          <ul id="menuPatients" class="submenu list-unstyled ps-3 collapse">
+            <li class="submenu-item"><a class="nav-link d-flex align-items-center" href="#" data-target="patients-list"><i class="bi bi-list me-2"></i>Patients List</a></li>
+            <li class="submenu-item">
+              <a class="nav-link d-flex align-items-center justify-content-between toggle-menu" href="#" data-bs-toggle="collapse" data-target="#patientSubMenu" aria-expanded="false">
+                <div><i class="bi bi-three-dots me-2"></i>More Options</div>
+                <i class="bi bi-caret-down-fill"></i>
+              </a>
+
+              <ul id="patientSubMenu" class="sub-submenu list-unstyled ps-3 collapse">
+                <li><a class="nav-link d-flex align-items-center" href="#" data-target="patient-profile"><i class="bi bi-person-lines-fill me-2"></i>Patient Profile</a></li>
+                <li><a class="nav-link d-flex align-items-center" href="#" data-target="visits-history"><i class="bi bi-clock-history me-2"></i>Visits History</a></li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+
+        <li class="text-white-50 small mt-3 mb-1">DEPARTMENTS</li>
+        <li><a class="nav-link d-flex align-items-center" href="#" data-target="opd"><i class="bi bi-hospital me-2"></i>OPD</a></li>
+        <li><a class="nav-link d-flex align-items-center" href="#" data-target="ipd"><i class="bi bi-journal-medical me-2"></i>IPD</a></li>
+
+        <li class="text-white-50 small mt-3 mb-1">OTHERS</li>
+        <li><a class="nav-link d-flex align-items-center" href="#" data-target="billing"><i class="bi bi-receipt me-2"></i>Billing</a></li>
+        <li><a class="nav-link d-flex align-items-center" href="#" data-target="settings"><i class="bi bi-gear me-2"></i>Settings</a></li>
+
+        <li class="mt-3"><a class="nav-link text-danger d-flex align-items-center" href="#" data-target="logout"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+      </ul>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <div class="flex-grow-1">
+
+      <!-- TOP NAV -->
+      <nav class="top-navbar d-flex align-items-center justify-content-between px-3">
+        <div class="d-flex align-items-center gap-3">
+          <button class="btn btn-outline-primary d-lg-none" id="menu-toggle"><i class="bi bi-list"></i></button>
+          <button class="btn btn-outline-secondary" id="collapse-toggle"><i class="bi bi-layout-sidebar-inset"></i></button>
+          <h5 class="m-0">Dashboard</h5>
+        </div>
+
+        <div class="d-flex align-items-center gap-3">
+          <i class="bi bi-brightness-high fs-4 dark-toggle" id="themeToggle" title="Toggle dark"></i>
+          <i class="bi bi-bell fs-5"></i>
+          <i class="bi bi-person-circle fs-4"></i>
+        </div>
+      </nav>
+
+      <!-- DASHBOARD / TEMPLATES AREA -->
+      <main class="container-fluid p-4" id="app-content">
+
+        <!-- Default Dashboard View -->
+        <section id="view-dashboard">
+          <div class="row g-4">
+            <div class="col-md-3"><div class="dash-card"> <h6>Total Patients</h6><h3>1,245</h3></div></div>
+            <div class="col-md-3"><div class="dash-card"> <h6>Today's Appointments</h6><h3>84</h3></div></div>
+            <div class="col-md-3"><div class="dash-card"> <h6>OPD Cases</h6><h3>56</h3></div></div>
+            <div class="col-md-3"><div class="dash-card"> <h6>IPD Admissions</h6><h3>12</h3></div></div>
+          </div>
+
+          <div class="row mt-4">
+            <div class="col-lg-6"><div class="dash-card"><canvas id="chart1"></canvas></div></div>
+            <div class="col-lg-6"><div class="dash-card"><canvas id="chart2"></canvas></div></div>
+          </div>
+        </section>
+
+        <!-- Other templates (hidden by default) -->
+        <section id="view-login" class="d-none"> <!-- login form -->
+          <div class="d-flex align-items-center justify-content-center" style="min-height:60vh"><div class="card p-4" style="max-width:420px"><h4 class="mb-3">Login</h4><input class="form-control mb-2" placeholder="Email"><input class="form-control mb-2" placeholder="Password"><button class="btn btn-primary w-100">Login</button></div></div>
+        </section>
+
+        <section id="view-opd" class="d-none">
+          <h4>OPD Records</h4>
+          <div class="dash-card"><table class="table"><thead><tr><th>Patient</th><th>Date</th><th>Doctor</th><th>Status</th></tr></thead><tbody><tr><td>John</td><td>2025-02-01</td><td>Dr. Anil</td><td>Checked</td></tr></tbody></table></div>
+        </section>
+
+        <section id="view-ipd" class="d-none">
+          <h4>IPD Admissions</h4>
+          <div class="dash-card"><table class="table"><thead><tr><th>Patient</th><th>Room</th><th>Doctor</th><th>Duration</th></tr></thead><tbody><tr><td>Mary</td><td>204</td><td>Dr. Mehta</td><td>3 Days</td></tr></tbody></table></div>
+        </section>
+
+        <section id="view-patients" class="d-none">
+          <h4>Patients List</h4>
+          <div class="dash-card"><table class="table"><thead><tr><th>Name</th><th>Age</th><th>Contact</th><th>Action</th></tr></thead><tbody><tr><td>Amit</td><td>32</td><td>9876543210</td><td><button class="btn btn-sm btn-primary">View</button></td></tr></tbody></table></div>
+        </section>
+
+        <section id="view-billing" class="d-none">
+          <h4>Billing</h4>
+          <div class="dash-card"><label>Patient</label><input class="form-control mb-2"><label>Amount</label><input class="form-control mb-2" type="number"><button class="btn btn-success">Generate Bill</button></div>
+        </section>
+
+        <section id="view-settings" class="d-none"><h4>Settings</h4><div class="dash-card">Settings content</div></section>
+
+        <section id="view-patient-profile" class="d-none">
+          <h4>Patient Profile</h4>
+          <div class="dash-card">Profile content</div>
+        </section>
+
+        <section id="view-visits-history" class="d-none"><h4>Visits History</h4><div class="dash-card">History content</div></section>
+
+      </main>
+
+    </div>
+  </div>
+
+  <!-- SCRIPTS (placed at end so DOM elements exist) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    // Safe helper
+    const $ = (sel) => document.querySelector(sel);
+    const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+
+    // Elements
+    const sidebar = document.getElementById('sidebar');
+    const menuToggle = document.getElementById('menu-toggle');
+    const collapseToggle = document.getElementById('collapse-toggle');
+    const themeToggle = document.getElementById('themeToggle');
+
+    // Guard checks
+    if(menuToggle) menuToggle.addEventListener('click', () => sidebar && sidebar.classList.toggle('active'));
+    if(collapseToggle) collapseToggle.addEventListener('click', () => sidebar && sidebar.classList.toggle('collapsed'));
+    if(themeToggle) themeToggle.addEventListener('click', () => document.body.classList.toggle('dark-mode'));
+
+    // Charts (guarded)
+    try{
+      const c1 = document.getElementById('chart1');
+      if(c1) new Chart(c1, { type:'line', data:{ labels:['Mon','Tue','Wed','Thu','Fri'], datasets:[{ label:'Patients', data:[40,50,45,60,70], fill:false }] }, options:{ responsive:true } });
+
+      const c2 = document.getElementById('chart2');
+      if(c2) new Chart(c2, { type:'bar', data:{ labels:['OPD','IPD','Surgery'], datasets:[{ label:'Cases', data:[80,20,15] }] }, options:{ responsive:true } });
+    }catch(e){ console.warn('Chart render error', e); }
+
+    // Hover expand (only if sidebar exists)
+    if(sidebar){
+      sidebar.addEventListener('mouseenter', () => { if(!sidebar.classList.contains('collapsed')) sidebar.style.width = '270px'; });
+      sidebar.addEventListener('mouseleave', () => { if(!sidebar.classList.contains('collapsed')) sidebar.style.width = '';
+      });
+
+      // Click handlers for nav links: show active and show corresponding view
+      $$('.nav-link').forEach(link => {
+        link.addEventListener('click', (ev) => {
+          // Avoid links without data-target toggling collapse behaviour
+          ev.preventDefault();
+
+          // Active item marking
+          $$('.active-item').forEach(it=>it.classList.remove('active-item'));
+          const parentItem = link.closest('.menu-item, .submenu-item') || link.parentElement;
+          if(parentItem) parentItem.classList.add('active-item');
+
+          // If this link toggles a collapse (submenu), allow bootstrap to handle it and rotate icon
+          if(link.classList.contains('toggle-menu')){
+            const caret = link.querySelector('.bi-caret-down-fill');
+            if(caret) caret.classList.toggle('rotate-180');
+            const targetSelector = link.getAttribute('data-target') || link.getAttribute('href');
+            // toggle handled by bootstrap via data-bs-toggle attribute
+            return; // don't switch view
+          }
+
+          // Switch main view based on data-target attribute
+          const target = link.getAttribute('data-target');
+          if(target){
+            // hide all view sections then show target view
+            $$('#app-content section').forEach(s=> s.classList.add('d-none'));
+            const view = document.getElementById('view-' + target.replace(/\s+/g,'-'));
+            if(view) view.classList.remove('d-none');
+            else if(target === 'dashboard') { document.getElementById('view-dashboard').classList.remove('d-none'); }
+          }
+        });
+      });
+
+      // Auto-open parent menus if a nested active element exists on load
+      window.addEventListener('load', ()=>{
+        $$('.submenu, .sub-submenu').forEach(menu => {
+          if(menu.querySelector('.active-item')){
+            menu.classList.add('show');
+            // also rotate caret on its toggle link if any
+            const toggle = document.querySelector(`[data-bs-toggle][data-target="#${menu.id}"]`);
+            if(toggle){ const caret = toggle.querySelector('.bi-caret-down-fill'); if(caret) caret.classList.add('rotate-180'); }
+          }
+        });
+      });
+
+    }
+
+    // Multi-step form example (safe guards)
+    (function(){
+      const multi = document.getElementById('multiForm');
+      if(!multi) return;
+      const steps = Array.from(multi.querySelectorAll('.step'));
+      let cur = 0;
+      const show = i => steps.forEach((s,idx)=> s.classList.toggle('d-none', idx!==i));
+      show(cur);
+      const nextBtn = document.getElementById('nextBtn');
+      const prevBtn = document.getElementById('prevBtn');
+      const submitBtn = document.getElementById('submitBtn');
+      if(nextBtn) nextBtn.onclick = ()=>{ if(cur<steps.length-1){ cur++; show(cur); if(cur===steps.length-1){ nextBtn.classList.add('d-none'); if(submitBtn) submitBtn.classList.remove('d-none'); const f=new FormData(multi); let html=''; for(const [k,v] of f.entries()) html+=`<p><strong>${k}:</strong> ${v}</p>`; const summary = document.getElementById('summary'); if(summary) summary.innerHTML = html; } } };
+      if(prevBtn) prevBtn.onclick = ()=>{ if(cur>0){ cur--; show(cur); nextBtn.classList.remove('d-none'); if(submitBtn) submitBtn.classList.add('d-none'); } };
+      if(multi) multi.onsubmit = (e)=>{ e.preventDefault(); alert('Form submitted (demo)'); };
+    })();
+
+    // Printable Billing buttons (guarded)
+    const previewPrint = document.getElementById('previewPrint');
+    const doPrint = document.getElementById('doPrint');
+    if(previewPrint && document.getElementById('billArea')) previewPrint.addEventListener('click', ()=> window.open().document.write(document.getElementById('billArea').outerHTML));
+    if(doPrint && document.getElementById('billArea')) doPrint.addEventListener('click', ()=>{ const w=window.open('','_blank'); w.document.write('<html><head><title>Bill</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"></head><body>'+document.getElementById('billArea').outerHTML+'</body></html>'); w.document.close(); w.print(); });
+
+  </script>
+
+  <!-- Tailwind template (separate file) - copy/paste into tailwind-dashboard.html if needed -->
+  <!--
+  <!doctype html>
+  <html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Tailwind Hospital Dashboard</title>
+  </head>
+  <body class="bg-slate-50 text-slate-800"> ... </body>
+  </html>
+  -->
+
+</body>
+</html>
